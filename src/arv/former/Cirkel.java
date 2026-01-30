@@ -6,7 +6,6 @@ package arv.former;
 
 import java.awt.Color;
 import java.awt.Graphics;
-
 /**
  *
  * @author khaok01
