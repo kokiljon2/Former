@@ -11,10 +11,14 @@ import java.util.ArrayList;
  *
  * @author khaok01
  */
-public class FormerJPanel extends javax.swing.JPanel {
+public class FormerJPanel extends javax.swing.JPanel implements Runnable {
 
     ArrayList<Form> Former = new ArrayList<>();
     FileManager fmgr = new FileManager();
+    boolean Animering = true;
+    private volatile Thread trad;
+    boolean running;
+
     /**
      * Creates new form FormerJPanel
      */
@@ -36,9 +40,9 @@ public class FormerJPanel extends javax.swing.JPanel {
         rbtnTriangel = new javax.swing.JRadioButton();
         rbtnRektangel = new javax.swing.JRadioButton();
         rbtnCirkel = new javax.swing.JRadioButton();
-        btnStart = new javax.swing.JButton();
         btnSpara = new javax.swing.JButton();
         btnHämta = new javax.swing.JButton();
+        tbtnAnimering = new javax.swing.JToggleButton();
 
         addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -63,13 +67,6 @@ public class FormerJPanel extends javax.swing.JPanel {
         rbtng1.add(rbtnCirkel);
         rbtnCirkel.setText("Cirkel");
 
-        btnStart.setText("Start");
-        btnStart.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnStartActionPerformed(evt);
-            }
-        });
-
         btnSpara.setText("Spara");
         btnSpara.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -84,6 +81,18 @@ public class FormerJPanel extends javax.swing.JPanel {
             }
         });
 
+        tbtnAnimering.setText("Start");
+        tbtnAnimering.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                tbtnAnimeringItemStateChanged(evt);
+            }
+        });
+        tbtnAnimering.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tbtnAnimeringActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -92,20 +101,20 @@ public class FormerJPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnHämta)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnSpara))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(rbtnTriangel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(rbtnRektangel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(rbtnCirkel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
-                        .addComponent(btnStart)
+                        .addGap(18, 18, 18)
+                        .addComponent(tbtnAnimering, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnRensa)))
+                        .addComponent(btnRensa))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnHämta)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSpara)))
                 .addGap(21, 21, 21))
         );
         layout.setVerticalGroup(
@@ -117,7 +126,7 @@ public class FormerJPanel extends javax.swing.JPanel {
                     .addComponent(rbtnRektangel)
                     .addComponent(rbtnCirkel)
                     .addComponent(btnRensa)
-                    .addComponent(btnStart))
+                    .addComponent(tbtnAnimering))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSpara)
@@ -131,25 +140,19 @@ public class FormerJPanel extends javax.swing.JPanel {
         repaint();
     }//GEN-LAST:event_btnRensaActionPerformed
 
-    private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnStartActionPerformed
-
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
         int x = evt.getX();
         int y = evt.getY();
         int b = (int) (Math.random() * 301) + 5;
         int h = (int) (Math.random() * 301) + 5;
-        if(this.rbtnTriangel.isSelected()){
-            Form t = new Triangel(y+(h/2), x-(b/2), b, h, true);
+        if (this.rbtnTriangel.isSelected()) {
+            Form t = new Triangel(y + (h / 2), x - (b / 2), b, h, true);
             Former.add(t);
-        }
-        else if(this.rbtnRektangel.isSelected()){
-            Form r = new Rektangel(y-(h/2), x-(b/2), b, h, true);
+        } else if (this.rbtnRektangel.isSelected()) {
+            Form r = new Rektangel(y - (h / 2), x - (b / 2), b, h, true);
             Former.add(r);
-        }
-        else if(this.rbtnCirkel.isSelected()){
-            Form c = new Cirkel(y-(h/2), x-(h/2), h, true);
+        } else if (this.rbtnCirkel.isSelected()) {
+            Form c = new Cirkel(y - (h / 2), x - (h / 2), h, true);
             Former.add(c);
         }
         repaint();
@@ -163,6 +166,23 @@ public class FormerJPanel extends javax.swing.JPanel {
         Former = fmgr.readFromFile();
         repaint();
     }//GEN-LAST:event_btnHämtaActionPerformed
+
+    private void tbtnAnimeringActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tbtnAnimeringActionPerformed
+        if (Animering) {
+            tbtnAnimering.setText("Stop");
+            start();
+            Animering = false;
+        } else {
+            tbtnAnimering.setText("Start");
+            stop();
+            Animering = true;
+        }
+        run();
+    }//GEN-LAST:event_tbtnAnimeringActionPerformed
+
+    private void tbtnAnimeringItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tbtnAnimeringItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tbtnAnimeringItemStateChanged
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -170,14 +190,42 @@ public class FormerJPanel extends javax.swing.JPanel {
             Former.get(i).draw(g);
         }
     }
+
+    private void start() {
+        if (trad == null) {
+            trad = new Thread(this);
+            trad.start();
+            this.running = true;
+        }
+    }
+
+    private void stop() {
+        if (trad != null) {
+            this.running = false;
+            trad = null;
+        }
+    }
+
+    @Override
+    public void run() {
+        Thread thisThread = Thread.currentThread();
+        while (trad == thisThread) {
+            try {
+                Thread.sleep(30);
+            } catch (InterruptedException e) {
+            }
+            repaint();
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnHämta;
     private javax.swing.JButton btnRensa;
     private javax.swing.JButton btnSpara;
-    private javax.swing.JButton btnStart;
     private javax.swing.JRadioButton rbtnCirkel;
     private javax.swing.JRadioButton rbtnRektangel;
     private javax.swing.JRadioButton rbtnTriangel;
     private javax.swing.ButtonGroup rbtng1;
+    private javax.swing.JToggleButton tbtnAnimering;
     // End of variables declaration//GEN-END:variables
 }
