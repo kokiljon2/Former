@@ -17,7 +17,7 @@ public class FormerJPanel extends javax.swing.JPanel implements Runnable {
     FileManager fmgr = new FileManager();
     boolean Animering = true;
     private volatile Thread trad;
-    boolean running;
+    boolean running = false;
 
     /**
      * Creates new form FormerJPanel
@@ -82,11 +82,6 @@ public class FormerJPanel extends javax.swing.JPanel implements Runnable {
         });
 
         tbtnAnimering.setText("Start");
-        tbtnAnimering.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                tbtnAnimeringItemStateChanged(evt);
-            }
-        });
         tbtnAnimering.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tbtnAnimeringActionPerformed(evt);
@@ -143,16 +138,19 @@ public class FormerJPanel extends javax.swing.JPanel implements Runnable {
     private void formMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseClicked
         int x = evt.getX();
         int y = evt.getY();
-        int b = (int) (Math.random() * 301) + 5;
-        int h = (int) (Math.random() * 301) + 5;
+        int b = (int) (Math.random() * 101) + 10;
+        int h = (int) (Math.random() * 101) + 10;
         if (this.rbtnTriangel.isSelected()) {
             Form t = new Triangel(y + (h / 2), x - (b / 2), b, h, true);
+            t.setRunning(running);
             Former.add(t);
         } else if (this.rbtnRektangel.isSelected()) {
             Form r = new Rektangel(y - (h / 2), x - (b / 2), b, h, true);
+            r.setRunning(running);
             Former.add(r);
         } else if (this.rbtnCirkel.isSelected()) {
             Form c = new Cirkel(y - (h / 2), x - (h / 2), h, true);
+            c.setRunning(running);
             Former.add(c);
         }
         repaint();
@@ -177,18 +175,21 @@ public class FormerJPanel extends javax.swing.JPanel implements Runnable {
             stop();
             Animering = true;
         }
-        run();
+       
+        for (int i = 0; i < Former.size(); i++) {
+            Former.get(i).setRunning(running);
+        }
+        repaint();
     }//GEN-LAST:event_tbtnAnimeringActionPerformed
-
-    private void tbtnAnimeringItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tbtnAnimeringItemStateChanged
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tbtnAnimeringItemStateChanged
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        int b =this.getWidth();
         for (int i = 0; i < Former.size(); i++) {
+            
             Former.get(i).draw(g);
         }
+       
     }
 
     private void start() {

@@ -17,9 +17,11 @@ public abstract class Form implements Serializable{
 
     protected int yPos;
     protected int xPos;
-    protected boolean running;
+    protected boolean running=false;
     protected boolean positivRiktning;
     protected Color color;
+    protected boolean Höger =true;
+    protected int width;
 
     public Form(int yP, int xP) {
         this.yPos = yP;
@@ -41,9 +43,23 @@ public abstract class Form implements Serializable{
     public void setRunning(boolean run) {
         this.running = run;
     }
+    
+    public void getWidth(int w){
+        this.width=w;
+    }
 
     public void move(int x, int y) {
-
+        if(Höger){
+            xPos+=5;
+            if(xPos>450){
+                Höger=false;
+            }
+        }else{
+            xPos-=5;
+            if(xPos<000){
+                Höger=true;
+            }
+        }
     }
 
     public abstract void draw(Graphics g);
